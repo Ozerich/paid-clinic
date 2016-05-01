@@ -1,0 +1,12 @@
+{
+  "name": "health_api",
+  "description": "Health API",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "*",
+    "express-jwt": "*",
+    "mongoose": "*",
+    "body-parser": "*"
+  }
+}
