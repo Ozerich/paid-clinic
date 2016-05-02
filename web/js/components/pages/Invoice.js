@@ -3,17 +3,103 @@ var DataPoint = require('../../utils/DataPoint');
 var PageHeader = require('../../components/blocks/PageHeader');
 var Select2 = require('react-select2-wrapper');
 
+var Personal = require('../../models/Personal');
+var Service = require('../../models/Service');
+var Patient = require('../../models/Patient');
+
 module.exports = React.createClass({
 
     getInitialState(){
         return {
-            doctors: DataPoint.Personal.get(),
-            patients: DataPoint.Customers.get(),
-            services: DataPoint.Services.get(),
+            doctors: [],
+            patients: [],
+            services: [],
             doctor_id: null,
             patient_id: null,
             service_ids: []
         };
+
+    },
+
+    componentDidMount(){
+        this.loadState();
+    },
+
+    _serviceCollection: null,
+
+    loadState(){
+        var self = this;
+
+        var collection = new Personal.Collection;
+        collection.fetch({
+            success: function () {
+                var models = collection.models;
+                self.setState({
+                    doctors: models,
+                    doctor_id: models.length ? models[0]._id : ''
+                });
+            }
+        });
+
+
+        var collection2 = new Patient.Collection;
+        collection2.fetch({
+            success: function () {
+                var models = collection2.models;
+                self.setState({
+                    patients: models,
+                    patient_id: models.length ? models[0]._id : ''
+                });
+            }
+        });
+
+        var collection3 = new Service.Collection;
+        collection3.fetch({
+            success: function () {
+                self.setState({services: collection3.models});
+                self.forceUpdate();
+            }
+        });
+
+        this._serviceCollection = collection3;
+    },
+
+    getDoctorName: function (doctorId) {
+        var doctors = this.state.doctors;
+
+        for (var i = 0; i < doctors.length; i++) {
+            if (doctors[i].id == doctorId) {
+                return doctors[i].name;
+            }
+        }
+
+        return '';
+    },
+
+    getPatientName: function (patientId) {
+        var patients = this.state.patients;
+
+        for (var i = 0; i < patients.length; i++) {
+            if (patients[i].id == patientId) {
+                return patients[i].name;
+            }
+        }
+
+        return '';
+    },
+
+    getServicesString: function (services) {
+        var data = [];
+
+        for (var i = 0; i < services.length; i++) {
+            var serviceId = services[i];
+
+            var service = this._serviceCollection.get(serviceId);
+
+            data.push(service.name + ' ($ ' + service.price + ')');
+        }
+
+        return data.join(', ');
     },
 
     render(){
@@ -53,12 +139,34 @@ module.exports = React.createClass({
                                     </select>
                                 </div>
                             </div>
-                            <div className="box-footer">
-                                <button type="submit" onClick={this._onSubmit} className="btn btn-success">Печать
-                                </button>
-                            </div>
                         </form>
-
+                    </div>
+                    <div className="box print-box">
+                        <div className="box-header">
+                            <h3 className="box-title">Печать счета</h3>
+                        </div>
+                        <div className="box-body">
+                            <table className="table table-bordered" style={{width: '400px'}}>
+                                <tbody>
+                                <tr>
+                                    <td><strong>Доктор</strong></td>
+                                    <td>{this.getDoctorName(this.state.doctor_id)}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Пациент</strong></td>
+                                    <td>{this.getPatientName(this.state.patient_id)}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Услуги</strong></td>
+                                    <td>{this.getServicesString(this.state.service_ids)}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="box-footer">
+                            <button type="submit" onClick={this._onSubmit} className="btn btn-success">Печать
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

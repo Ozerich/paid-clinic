@@ -1,7 +1,7 @@
 var BaseModel = require('../utils/BaseModel');
 
 module.exports = BaseModel.extend({
-    urlRoot: 'http://localhost:8080/api/patients',
+    urlRoot: 'https://pacific-inlet-79467.herokuapp.com/api/patients',
     idAttribute: '_id',
     defaults: {
         name: String.value(null),

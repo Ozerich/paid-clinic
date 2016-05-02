@@ -1,6 +1,6 @@
 {
   "port": 8080,
   "mongoose": {
-    "uri": "mongodb://localhost/health"
+    "uri": "mongodb://admin:admin@ds011902.mlab.com:11902/heroku_jcv030fw"
   }
 }
